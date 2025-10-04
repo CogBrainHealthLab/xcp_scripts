@@ -269,21 +269,21 @@ the following post-processing was performed.
             ]),
         ])  # fmt:skip
 
-    # if bandpass_filter:
-    #     alff_wf = init_alff_wf(name_source=bold_file, TR=TR, mem_gb=mem_gbx)
-    # 
-    #     workflow.connect([
-    #         (inputnode, alff_wf, [
-    #             ('lh_midthickness', 'inputnode.lh_midthickness'),
-    #             ('rh_midthickness', 'inputnode.rh_midthickness'),
-    #         ]),
-    #         (prepare_confounds_wf, alff_wf, [
-    #             ('outputnode.temporal_mask', 'inputnode.temporal_mask'),
-    #         ]),
-    #         (denoise_bold_wf, alff_wf, [
-    #             ('outputnode.denoised_interpolated_bold', 'inputnode.denoised_bold'),
-    #         ]),
-    #     ])  # fmt:skip
+    if bandpass_filter:
+        alff_wf = init_alff_wf(name_source=bold_file, TR=TR, mem_gb=mem_gbx)
+
+        workflow.connect([
+            (inputnode, alff_wf, [
+                ('lh_midthickness', 'inputnode.lh_midthickness'),
+                ('rh_midthickness', 'inputnode.rh_midthickness'),
+            ]),
+            (prepare_confounds_wf, alff_wf, [
+                ('outputnode.temporal_mask', 'inputnode.temporal_mask'),
+            ]),
+            (denoise_bold_wf, alff_wf, [
+                ('outputnode.denoised_interpolated_bold', 'inputnode.denoised_bold'),
+            ]),
+        ])  # fmt:skip
 
     reho_wf = init_reho_cifti_wf(name_source=bold_file, mem_gb=mem_gbx)
 
@@ -354,13 +354,13 @@ the following post-processing was performed.
         ]),
     ])  # fmt:skip
 
-    # if bandpass_filter:
-    #     workflow.connect([
-    #         (alff_wf, postproc_derivatives_wf, [
-    #             ('outputnode.alff', 'inputnode.alff'),
-    #             ('outputnode.smoothed_alff', 'inputnode.smoothed_alff'),
-    #         ]),
-    #     ])  # fmt:skip
+    if bandpass_filter:
+        workflow.connect([
+            (alff_wf, postproc_derivatives_wf, [
+                ('outputnode.alff', 'inputnode.alff'),
+                ('outputnode.smoothed_alff', 'inputnode.smoothed_alff'),
+            ]),
+        ])  # fmt:skip
 
     if config.execution.atlases:
         connectivity_wf = init_functional_connectivity_cifti_wf(
@@ -397,13 +397,13 @@ the following post-processing was performed.
             ]),
         ])  # fmt:skip
 
-        # if bandpass_filter:
-        #     workflow.connect([
-        #         (alff_wf, connectivity_wf, [('outputnode.alff', 'inputnode.alff')]),
-        #         (connectivity_wf, postproc_derivatives_wf, [
-        #             ('outputnode.parcellated_alff', 'inputnode.parcellated_alff'),
-        #         ]),
-        #     ])  # fmt:skip
+        if bandpass_filter:
+            workflow.connect([
+                (alff_wf, connectivity_wf, [('outputnode.alff', 'inputnode.alff')]),
+                (connectivity_wf, postproc_derivatives_wf, [
+                    ('outputnode.parcellated_alff', 'inputnode.parcellated_alff'),
+                ]),
+            ])  # fmt:skip
 
     if config.workflow.abcc_qc:
         # executive summary workflow
