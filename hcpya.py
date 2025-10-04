@@ -293,7 +293,7 @@ def convert_hcp_to_bids_single_subject(in_dir, out_dir, sub_ent):
 
         bold_mask_orig = os.path.join(task_dir_orig, 'brainmask_fs.2.0.nii.gz')
         if not os.path.isfile(bold_mask_orig):
-            bold_mask_orig = os.path.join(task_dir_orig, 'brainmask_fs.nii.gz')
+            bold_mask_orig = os.path.join(anat_dir_orig, 'brainmask_fs.nii.gz')
 
         bold_mask_fmriprep = os.path.join(
             func_dir_bids,
