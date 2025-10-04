@@ -879,116 +879,116 @@ def init_postproc_derivatives_wf(
             ]),
         ])  # fmt:skip
 
-    if bandpass_filter:
-        ds_alff = pe.Node(
-            DerivativesDataSink(
-                source_file=name_source,
-                check_hdr=False,
-                dismiss_entities=dismiss_hash(['desc', 'den']),
-                cohort=cohort,
-                den='91k' if file_format == 'cifti' else None,
-                statistic='alff',
-                suffix='boldmap',
-                extension='.dscalar.nii' if file_format == 'cifti' else '.nii.gz',
-                # Metadata
-                SoftwareFilters=software_filters,
-            ),
-            name='ds_alff',
-            run_without_submitting=True,
-            mem_gb=1,
-        )
-        workflow.connect([
-            (inputnode, ds_alff, [('alff', 'in_file')]),
-            (denoised_src, ds_alff, [('out', 'Sources')]),
-        ])  # fmt:skip
+#    if bandpass_filter:
+#        ds_alff = pe.Node(
+#            DerivativesDataSink(
+#                source_file=name_source,
+#                check_hdr=False,
+#                dismiss_entities=dismiss_hash(['desc', 'den']),
+#                cohort=cohort,
+#                den='91k' if file_format == 'cifti' else None,
+#                statistic='alff',
+#                suffix='boldmap',
+#                extension='.dscalar.nii' if file_format == 'cifti' else '.nii.gz',
+#                # Metadata
+#                SoftwareFilters=software_filters,
+#            ),
+#            name='ds_alff',
+#            run_without_submitting=True,
+#            mem_gb=1,
+#        )
+#        workflow.connect([
+#            (inputnode, ds_alff, [('alff', 'in_file')]),
+#            (denoised_src, ds_alff, [('out', 'Sources')]),
+#        ])  # fmt:skip
 
-        if smoothing:
-            alff_src = pe.Node(
-                BIDSURI(
-                    numinputs=1,
-                    dataset_links=config.execution.dataset_links,
-                    out_dir=str(output_dir),
-                ),
-                name='alff_src',
-                run_without_submitting=True,
-                mem_gb=1,
-            )
-            workflow.connect([(ds_alff, alff_src, [('out_file', 'in1')])])
+#        if smoothing:
+#            alff_src = pe.Node(
+#                BIDSURI(
+#                    numinputs=1,
+#                    dataset_links=config.execution.dataset_links,
+#                    out_dir=str(output_dir),
+#                ),
+#                name='alff_src',
+#                run_without_submitting=True,
+#                mem_gb=1,
+#            )
+#            workflow.connect([(ds_alff, alff_src, [('out_file', 'in1')])])
 
-            ds_smoothed_alff = pe.Node(
-                DerivativesDataSink(
-                    source_file=name_source,
-                    dismiss_entities=dismiss_hash(['den']),
-                    cohort=cohort,
-                    desc='smooth',
-                    den='91k' if file_format == 'cifti' else None,
-                    statistic='alff',
-                    suffix='boldmap',
-                    extension='.dscalar.nii' if file_format == 'cifti' else '.nii.gz',
-                    check_hdr=False,
-                    # Metadata
-                    SoftwareFilters=software_filters,
-                    FWHM=smoothing,
-                ),
-                name='ds_smoothed_alff',
-                run_without_submitting=True,
-                mem_gb=1,
-            )
-            workflow.connect([
-                (inputnode, ds_smoothed_alff, [('smoothed_alff', 'in_file')]),
-                (alff_src, ds_smoothed_alff, [('out', 'Sources')]),
-            ])  # fmt:skip
+#            ds_smoothed_alff = pe.Node(
+#                DerivativesDataSink(
+#                    source_file=name_source,
+#                    dismiss_entities=dismiss_hash(['den']),
+#                    cohort=cohort,
+#                    desc='smooth',
+#                    den='91k' if file_format == 'cifti' else None,
+#                    statistic='alff',
+#                    suffix='boldmap',
+#                    extension='.dscalar.nii' if file_format == 'cifti' else '.nii.gz',
+#                    check_hdr=False,
+#                    # Metadata
+#                    SoftwareFilters=software_filters,
+#                    FWHM=smoothing,
+#                ),
+#                name='ds_smoothed_alff',
+#                run_without_submitting=True,
+#                mem_gb=1,
+#            )
+#            workflow.connect([
+#                (inputnode, ds_smoothed_alff, [('smoothed_alff', 'in_file')]),
+#                (alff_src, ds_smoothed_alff, [('out', 'Sources')]),
+#            ])  # fmt:skip
 
-        if config.execution.atlases:
-            add_alff_to_src = pe.MapNode(
-                BIDSURI(
-                    numinputs=1,
-                    dataset_links=config.execution.dataset_links,
-                    out_dir=str(output_dir),
-                ),
-                run_without_submitting=True,
-                mem_gb=1,
-                name='add_alff_to_src',
-                iterfield=['metadata'],
-            )
-            workflow.connect([
-                (make_atlas_dict, add_alff_to_src, [('metadata', 'metadata')]),
-                (ds_alff, add_alff_to_src, [('out_file', 'in1')]),
-            ])  # fmt:skip
+#        if config.execution.atlases:
+#            add_alff_to_src = pe.MapNode(
+#                BIDSURI(
+#                    numinputs=1,
+#                    dataset_links=config.execution.dataset_links,
+#                    out_dir=str(output_dir),
+#                ),
+#                run_without_submitting=True,
+#                mem_gb=1,
+#                name='add_alff_to_src',
+#                iterfield=['metadata'],
+#            )
+#            workflow.connect([
+#                (make_atlas_dict, add_alff_to_src, [('metadata', 'metadata')]),
+#                (ds_alff, add_alff_to_src, [('out_file', 'in1')]),
+#            ])  # fmt:skip
 
-            add_hash_parcellated_alff = pe.MapNode(
-                AddHashToTSV(
-                    add_to_columns=True,
-                    add_to_rows=False,
-                ),
-                name='add_hash_parcellated_alff',
-                iterfield=['in_file', 'metadata'],
-            )
-            workflow.connect([
-                (inputnode, add_hash_parcellated_alff, [('parcellated_alff', 'in_file')]),
-                (add_alff_to_src, add_hash_parcellated_alff, [('metadata', 'metadata')]),
-            ])  # fmt:skip
+#            add_hash_parcellated_alff = pe.MapNode(
+#                AddHashToTSV(
+#                    add_to_columns=True,
+#                    add_to_rows=False,
+#                ),
+#                name='add_hash_parcellated_alff',
+#                iterfield=['in_file', 'metadata'],
+#            )
+#            workflow.connect([
+#                (inputnode, add_hash_parcellated_alff, [('parcellated_alff', 'in_file')]),
+#                (add_alff_to_src, add_hash_parcellated_alff, [('metadata', 'metadata')]),
+#            ])  # fmt:skip
 
-            ds_parcellated_alff = pe.MapNode(
-                DerivativesDataSink(
-                    source_file=name_source,
-                    dismiss_entities=dismiss_hash(['desc', 'den', 'res']),
-                    cohort=cohort,
-                    statistic='alff',
-                    suffix='bold',
-                    extension='.tsv',
-                ),
-                name='ds_parcellated_alff',
-                run_without_submitting=True,
-                mem_gb=1,
-                iterfield=['segmentation', 'in_file', 'meta_dict'],
-            )
-            workflow.connect([
-                (inputnode, ds_parcellated_alff, [('atlas_names', 'segmentation')]),
-                (add_hash_parcellated_alff, ds_parcellated_alff, [
-                    ('out_file', 'in_file'),
-                    ('metadata', 'meta_dict'),
-                ]),
-            ])  # fmt:skip
+#            ds_parcellated_alff = pe.MapNode(
+#                DerivativesDataSink(
+#                    source_file=name_source,
+#                    dismiss_entities=dismiss_hash(['desc', 'den', 'res']),
+#                    cohort=cohort,
+#                    statistic='alff',
+#                    suffix='bold',
+#                    extension='.tsv',
+#                ),
+#                name='ds_parcellated_alff',
+#                run_without_submitting=True,
+#                mem_gb=1,
+#                iterfield=['segmentation', 'in_file', 'meta_dict'],
+#            )
+#            workflow.connect([
+#                (inputnode, ds_parcellated_alff, [('atlas_names', 'segmentation')]),
+#                (add_hash_parcellated_alff, ds_parcellated_alff, [
+#                    ('out_file', 'in_file'),
+#                    ('metadata', 'meta_dict'),
+#                ]),
+#            ])  # fmt:skip
 
     return workflow
