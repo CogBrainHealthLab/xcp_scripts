@@ -13,7 +13,7 @@ from xcp_d.interfaces.utils import ConvertTo32
 from xcp_d.utils.doc import fill_doc
 from xcp_d.utils.utils import _create_mem_gb
 from xcp_d.workflows.bold.connectivity import init_functional_connectivity_cifti_wf
-#from xcp_d.workflows.bold.metrics import init_alff_wf, init_reho_cifti_wf
+from xcp_d.workflows.bold.metrics import init_alff_wf, init_reho_cifti_wf
 from xcp_d.workflows.bold.outputs import init_postproc_derivatives_wf
 from xcp_d.workflows.bold.plotting import (
     init_execsummary_functional_plots_wf,
