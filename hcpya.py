@@ -260,7 +260,7 @@ def convert_hcp_to_bids_single_subject(in_dir, out_dir, sub_ent):
 
         # Find original task files
         #sbref_orig = os.path.join(task_dir_orig, 'SBRef.nii.gz')
-        sbref_orig = os.path.join(task_dir_orig, f'{base_task_name}.SBRef.nii.gz')
+        sbref_orig = os.path.join(task_dir_orig, f'{base_task_name}_SBRef.nii.gz')
         boldref_fmriprep = os.path.join(
             func_dir_bids,
             f'{func_prefix}_{volspace_ent}_{RES_ENT}_boldref.nii.gz',
